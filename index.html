@@ -8,6 +8,10 @@
   <meta property="og:title" content="BRF Reveljen 4" />
   <meta property="og:description" content="Välskött bostadsrättsförening på Nedre Gärdet i Stockholm, med fastighet uppförd 1935." />
   <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://fredriksinclair.github.io/BRFReveljen4/" />
+  <meta property="og:image" content="https://fredriksinclair.github.io/BRFReveljen4/uploads/rimage%20(13)-d4847041.jpeg" />
+  <meta name="theme-color" content="#85a1b7" />
+  <link rel="apple-touch-icon" href="uploads/rimage%20(13)-d4847041.jpeg" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%2385a1b7'/><text x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-family='Georgia,serif' font-size='13' font-weight='bold' fill='white'>R4</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -65,6 +69,14 @@
 
 <div id="root"></div>
 
+<noscript>
+  <div style="font-family:sans-serif;max-width:560px;margin:100px auto;padding:0 24px;text-align:center;color:#1A1A1A">
+    <p style="font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:#8A8680;margin-bottom:16px">BRF Reveljen 4</p>
+    <h1 style="font-size:28px;font-weight:300;margin-bottom:20px">Webbplatsen kräver JavaScript</h1>
+    <p style="font-size:15px;line-height:1.7;color:#4A4A4A">Aktivera JavaScript i din webbläsare för att se sidan. Kontakta gärna styrelsen direkt på <a href="mailto:brfreveljen4styrelsen@gmail.com" style="color:#85a1b7">brfreveljen4styrelsen@gmail.com</a>.</p>
+  </div>
+</noscript>
+
 <script type="text/babel">
 
 
@@ -91,6 +103,7 @@ function useFadeIn(threshold = 0.1) {
 function useParallax(speed = 0.12) {
   const ref = useRef(null);
   useEffect(() => {
+    if (window.innerWidth <= 768) return;
     const el = ref.current; if (!el) return;
     const tick = () => {
       const rect = el.parentElement.getBoundingClientRect();
@@ -238,6 +251,7 @@ function Nav({ active }) {
 function Hero() {
   const [scrollY, setScrollY] = useState(0);
   useEffect(() => {
+    if (window.innerWidth <= 768) return;
     const fn = () => setScrollY(window.scrollY);
     window.addEventListener('scroll', fn, { passive: true });
     return () => window.removeEventListener('scroll', fn);
@@ -457,7 +471,7 @@ function Boende() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 18 }}>
         {tabs[tab].items.map((item, i) =>
         <FadeIn key={`${tab}-${i}`} delay={i * 55} style={{ height: '100%' }}>
-            <div style={{ padding: 28, border: '1px solid var(--border)', borderRadius: 6, background: 'var(--bg)', transition: 'border-color .2s,box-shadow .2s', cursor: 'default', height: '100%', boxSizing: 'border-box' }}
+            <div style={{ padding: 28, border: '1px solid var(--border)', borderRadius: 6, background: 'var(--bg)', transition: 'border-color .2s,box-shadow .2s', cursor: 'default', height: '100%', minHeight: 200, boxSizing: 'border-box' }}
           onMouseEnter={(e) => {e.currentTarget.style.borderColor = 'var(--accent-mid)';e.currentTarget.style.boxShadow = '0 4px 16px rgba(46,123,180,.08)';}}
           onMouseLeave={(e) => {e.currentTarget.style.borderColor = 'var(--border)';e.currentTarget.style.boxShadow = 'none';}}>
               <div style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--accent)', marginBottom: 14 }} />
@@ -486,6 +500,7 @@ function Boende() {
 // ── Bildgalleri ───────────────────────────────────────────────────────────
 function Galleri() {
   const [lightbox, setLightbox] = useState(null);
+  const [touchStartX, setTouchStartX] = useState(null);
   const photos = [
   { src: IMGS.exterior, alt: 'Fasaden – hörnbyggnad med vita balkonger', cap: 'Fasaden', gc: '1/3', gr: '1' },
   { src: IMGS.lobby, alt: 'Entréhall med marmorklädda väggar och Art Deco-stuckatur', cap: 'Entréhallen', gc: '3', gr: '1/3' },
@@ -516,7 +531,15 @@ function Galleri() {
         )}
       </div>
       {lightbox !== null &&
-      <div onClick={() => setLightbox(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.92)', zIndex: 9998, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'zoom-out' }}>
+      <div onClick={() => setLightbox(null)}
+        onTouchStart={(e) => setTouchStartX(e.touches[0].clientX)}
+        onTouchEnd={(e) => {
+          if (touchStartX === null) return;
+          const dx = touchStartX - e.changedTouches[0].clientX;
+          if (Math.abs(dx) > 50) setLightbox((l) => dx > 0 ? (l + 1) % photos.length : (l - 1 + photos.length) % photos.length);
+          setTouchStartX(null);
+        }}
+        style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.92)', zIndex: 9998, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'zoom-out' }}>
           <img src={photos[lightbox].src} alt={photos[lightbox].alt} style={{ maxWidth: '90vw', maxHeight: '90vh', objectFit: 'contain', borderRadius: 4 }} />
           <button onClick={(e) => {e.stopPropagation();setLightbox((l) => (l - 1 + photos.length) % photos.length);}}
         style={{ position: 'fixed', left: 24, top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,.12)', border: 'none', borderRadius: '50%', width: 48, height: 48, color: '#fff', fontSize: 22, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>‹</button>
@@ -532,13 +555,14 @@ function Galleri() {
 // ── Dokument ──────────────────────────────────────────────────────────────
 function Dokument() {
   const [filter, setFilter] = useState('Alla');
-  const docs = [
-  { name: 'Årsredovisning 2025', cat: 'Årsredovisning', year: '2025', size: '1.3 MB', updated: '2026-05-26', file: 'uploads/ÅR 2025 Brf Reveljen 4.pdf' },
-  { name: 'Årsredovisning 2024', cat: 'Årsredovisning', year: '2024', size: '960 KB', updated: '2025-05-01', file: 'uploads/ÅR 2024 Brf Reveljen 4.pdf' },
-  { name: 'Årsredovisning 2023', cat: 'Årsredovisning', year: '2023', size: '1.5 MB', updated: '2024-05-01', file: 'uploads/ÅR 2023 Brf Reveljen 4.pdf' },
-  { name: 'Stadgar 2019', cat: 'Stadgar', year: '2019', size: '310 KB', updated: '2019-01-01', file: 'uploads/Stadgar_2018.pdf' },
-  { name: 'Energideklaration 2020', cat: 'Övrigt', year: '2020', size: '213 KB', updated: '2020-04-14', file: 'uploads/Energideklaration_2020.pdf' }];
-
+  const [docs, setDocs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    fetch('uploads/documents.json')
+      .then(r => r.json())
+      .then(data => { setDocs(data); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, []);
   const cats = ['Alla', 'Årsredovisning', 'Stadgar', 'Övrigt'];
   const shown = filter === 'Alla' ? docs : docs.filter((d) => d.cat === filter);
   return (
@@ -555,6 +579,9 @@ function Dokument() {
           )}
         </div>
       </FadeIn>
+      {loading ? (
+        <p style={{ color: 'var(--ink-muted)', fontSize: 14, padding: '24px 0' }}>Laddar dokument…</p>
+      ) : (
       <div style={{ border: '1px solid var(--border)', borderRadius: 8, overflow: 'hidden' }}>
         {shown.map((doc, i) =>
         <FadeIn key={doc.name} delay={i * 35}>
@@ -583,49 +610,8 @@ function Dokument() {
           </FadeIn>
         )}
       </div>
+      )}
       <FadeIn><p style={{ marginTop: 14, fontSize: 12, color: 'var(--ink-muted)' }}>Saknar du ett dokument? <a href="#kontakt" style={{ color: 'var(--accent)' }}>Kontakta styrelsen</a> så hjälper vi dig.</p></FadeIn>
-    </Sec>);
-
-}
-
-// ── Nyheter ───────────────────────────────────────────────────────────────
-function Nyheter() {
-  const news = [
-  { date: '15 april 2025', tag: 'Underhåll', color: { bg: '#FEF3C7', c: '#92400E' },
-    title: 'Trapprenovering i trapphus A och C',
-    body: 'Under vecka 20–22 renoveras trapphusen A och C. Arbetet utförs av NCC och beräknas ta 3 veckor. Hissen i trapphus A stängs av under perioden.' },
-  { date: '2 mars 2025', tag: 'Stämma', color: { bg: 'var(--accent-light)', c: 'var(--accent)' },
-    title: 'Kallelse till ordinarie föreningsstämma 2025',
-    body: 'Ordinarie föreningsstämma hålls torsdagen den 5 juni 2025 kl. 18:30. Dagordning och årsredovisning skickas separat till alla boende.' },
-  { date: '10 januari 2025', tag: 'Information', color: { bg: '#EDE9FE', c: '#5B21B6' },
-    title: 'Nytt bokningssystem för tvättstugan',
-    body: 'Fr.o.m. 1 februari 2025 används Aptus Online för bokning av tvättstugan. Alla boende har fått inloggningsuppgifter via e-post.' },
-  { date: '18 november 2024', tag: 'Miljö', color: { bg: '#DCFCE7', c: '#166534' },
-    title: 'Ny källsorteringslösning på innergården',
-    body: 'Vi har uppgraderat vår miljöstation med nya, tydligt märkta kärl. Matavfall komposteras nu lokalt. Tack för ert miljöengagemang!' }];
-
-  return (
-    <Sec id="nyheter" label="Nyheter" bg="var(--white)">
-      <SecHead eyebrow="Aktuellt" title="Nyheter & anslag" sub="Aktuell information och uppdateringar från styrelsen." />
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 22 }}>
-        {news.map((n, i) =>
-        <FadeIn key={i} delay={i * 70}>
-            <article style={{ border: '1px solid var(--border)', borderRadius: 8, padding: 30, background: 'var(--bg)', display: 'flex', flexDirection: 'column', gap: 12, transition: 'all .2s', cursor: 'pointer' }}
-          onMouseEnter={(e) => {e.currentTarget.style.borderColor = 'var(--accent-mid)';e.currentTarget.style.transform = 'translateY(-3px)';e.currentTarget.style.boxShadow = '0 8px 24px rgba(46,123,180,.1)';}}
-          onMouseLeave={(e) => {e.currentTarget.style.borderColor = 'var(--border)';e.currentTarget.style.transform = 'none';e.currentTarget.style.boxShadow = 'none';}}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ display: 'inline-block', padding: '4px 10px', borderRadius: 20, background: n.color.bg, color: n.color.c, fontSize: 10, fontWeight: 500, letterSpacing: '.06em' }}>{n.tag}</span>
-                <span style={{ fontSize: 11, color: 'var(--ink-muted)' }}>{n.date}</span>
-              </div>
-              <h3 style={{ fontFamily: 'var(--serif)', fontSize: 22, fontWeight: 500, color: 'var(--ink)', lineHeight: 1.25 }}>{n.title}</h3>
-              <p style={{ color: 'var(--ink-soft)', fontSize: 14, lineHeight: 1.72 }}>{n.body}</p>
-              <a href="#" onClick={(e) => e.preventDefault()} style={{ color: 'var(--accent)', fontSize: 11, fontWeight: 500, letterSpacing: '.08em', textTransform: 'uppercase', textDecoration: 'none', marginTop: 'auto', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                Läs mer <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
-              </a>
-            </article>
-          </FadeIn>
-        )}
-      </div>
     </Sec>);
 
 }
@@ -684,6 +670,33 @@ function Kontakt() {
 
 }
 
+// ── Map embed (click-to-load avoids Google cookies until user consents) ────
+function MapEmbed() {
+  const [loaded, setLoaded] = useState(false);
+  if (loaded) return (
+    <div style={{ minHeight: 380, height: '100%' }}>
+      <iframe
+        title="Karta BRF Reveljen 4"
+        src="https://maps.google.com/maps?q=Erik+Dahlbergsgatan+28,+Stockholm&output=embed"
+        width="100%" height="100%"
+        style={{ border: 0, display: 'block', minHeight: 380, filter: 'grayscale(100%) contrast(1.05)' }}
+        allowFullScreen loading="eager" referrerPolicy="no-referrer-when-downgrade" />
+    </div>
+  );
+  return (
+    <div onClick={() => setLoaded(true)} style={{ minHeight: 380, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 20, background: '#1e2a35', cursor: 'pointer' }}>
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z" fill="rgba(255,255,255,0.25)"/></svg>
+      <div style={{ textAlign: 'center' }}>
+        <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12, letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: 14 }}>Google Maps</p>
+        <button style={{ padding: '12px 28px', background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: 4, fontFamily: 'var(--sans)', fontSize: 12, fontWeight: 500, letterSpacing: '.08em', textTransform: 'uppercase', cursor: 'pointer' }}>
+          Visa karta
+        </button>
+        <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11, marginTop: 12 }}>Kartan laddas från Google och kan sätta cookies.</p>
+      </div>
+    </div>
+  );
+}
+
 // ── Karta ──────────────────────────────────────────────────────────────────
 function Karta() {
   return (
@@ -699,13 +712,7 @@ function Karta() {
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
           </a>
         </FadeIn>
-        <div style={{ minHeight: 380 }}>
-          <iframe
-            title="Karta BRF Reveljen 4"
-            src="https://maps.google.com/maps?q=Erik+Dahlbergsgatan+28,+Stockholm&output=embed"
-            width="100%" height="100%" style={{ border: 0, display: 'block', minHeight: 380, filter: 'grayscale(100%) contrast(1.05)' }}
-            allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
-        </div>
+        <MapEmbed />
       </div>
     </section>);
 }
