@@ -369,6 +369,12 @@ function SecHead({ eyebrow, title, sub }) {
 // ── Om föreningen ──────────────────────────────────────────────────────────
 function Om() {
   const paraRef = useParallax(0.1);
+  const [fakta, setFakta] = useState([]);
+  const [historik, setHistorik] = useState([]);
+  useEffect(() => {
+    fetch('uploads/fakta.json').then(r => r.json()).then(setFakta).catch(() => {});
+    fetch('uploads/historik.json').then(r => r.json()).then(setHistorik).catch(() => {});
+  }, []);
   return (
     <Sec id="om" label="Om föreningen">
       <SecHead eyebrow="Om oss" title="BRF Reveljen 4" sub="En liten bostadsrättsförening med 24 lägenheter i ett femvåningshus på Erik Dahlbergsgatan 28 i Gärdet. Fastigheten uppfördes 1935 och föreningen registrerades 1996. Styrelsen är aktiv och engagerad, och föreningen har god ekonomi med låg belåning." />
@@ -386,17 +392,7 @@ function Om() {
         <div>
           <div style={{ borderLeft: '2px solid var(--accent-mid)', paddingLeft: 22, marginBottom: 36 }}>
             <FadeIn><p style={{ color: 'var(--ink-muted)', fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: 16, fontWeight: 500 }}>Faktablad</p></FadeIn>
-            {[
-            ['Org.nr', '769601-5028'],
-            ['Registrerad', '1996'],
-            ['Byggår', '1935'],
-            ['Lägenheter', '24 bostadsrätter + 1 lokal'],
-            ['Trapphus / våningar', '1 trapphus, 5 våningar'],
-            ['Uppvärmning', 'Bergvärme'],
-            ['Avgift inkl.', 'Värme, vatten, bredband, kabel-TV'],
-            ['Skuldsättning/kvm', '2 035 kr (2025)'],
-            ['Adress', 'Erik Dahlbergsgatan 28, Stockholm']].
-            map(([k, v], i) =>
+            {fakta.map(([k, v], i) =>
             <FadeIn key={k} from='left' delay={i * 40}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--border)', fontSize: 14 }}>
                   <span style={{ color: 'var(--ink-muted)' }}>{k}</span>
@@ -407,16 +403,7 @@ function Om() {
           </div>
           <div>
             <FadeIn delay={120}><h3 style={{ fontFamily: 'var(--serif)', fontSize: 26, fontWeight: 400, marginBottom: 20 }}>Historik</h3></FadeIn>
-            {[
-            { y: '1935', t: 'Fastigheten uppförs med marmorentré och rymliga planlösningar på Erik Dahlbergsgatan 28.' },
-            { y: '1996', t: 'Bostadsrättsföreningen Reveljen 4 registreras. Fastigheten upplåts med bostadsrätt.' },
-            { y: '2000', t: 'Stambyte genomförs i hela fastigheten.' },
-            { y: '2019', t: 'Föreningens stadgar uppdateras och registreras hos Bolagsverket.' },
-            { y: '2022', t: 'Fasadrenovering och fönsterbyte genomförs. Fiberinstallation driftsätts i fastigheten.' },
-            { y: '2022', t: 'Ventilationsåtgärder genomförs.' },
-            { y: '2023', t: 'Fönsterrenovering med åtgärder av putsskador slutförs.' },
-            { y: '2025', t: 'Hissrenovering genomförs. Ny underhållsplan upprättas.' }].
-            map((item, i) =>
+            {historik.map((item, i) =>
             <FadeIn key={i} from='left' delay={i * 70 + 160}>
                 <div style={{ position: 'relative', paddingLeft: 22, marginBottom: 20, borderLeft: '1px solid var(--border)' }}>
                   <div style={{ position: 'absolute', left: -4, top: 5, width: 7, height: 7, borderRadius: '50%', background: 'var(--accent)', border: '2px solid var(--bg)' }} />
