@@ -61,7 +61,10 @@
       .contact-grid { grid-template-columns: 1fr !important; }
       .karta-grid { grid-template-columns: 1fr !important; }
       .hero-btns { flex-direction: column !important; }
-      .stats-grid > div { border-right: none !important; border-bottom: 1px solid rgba(255,255,255,.18); }
+      .stats-grid > div { border-right: none !important; border-bottom: none !important; }
+  .stats-grid > div > div { border-right: none !important; border-bottom: none !important; }
+  .stats-grid > div:nth-child(odd) > div { border-right: 1px solid rgba(255,255,255,.18) !important; }
+  .stats-grid > div:nth-child(-n+2) > div { border-bottom: 1px solid rgba(255,255,255,.18) !important; }
     }
   </style>
 </head>
