@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BRF Reveljen 4 – Nedre Gärdet, Stockholm</title>
+  <meta name="description" content="BRF Reveljen 4 är en välskött bostadsrättsförening med 24 lägenheter på Erik Dahlbergsgatan 28, Nedre Gärdet i Stockholm. Fastigheten uppfördes 1935." />
+  <meta property="og:title" content="BRF Reveljen 4" />
+  <meta property="og:description" content="Välskött bostadsrättsförening på Nedre Gärdet i Stockholm, med fastighet uppförd 1935." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%2385a1b7'/><text x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-family='Georgia,serif' font-size='13' font-weight='bold' fill='white'>R4</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #F8F6F2;
+      --white: #FFFFFF;
+      --ink: #1A1A1A;
+      --ink-soft: #4A4A4A;
+      --ink-muted: #8A8680;
+      --accent: #85a1b7;
+      --accent-light: #e8eff4;
+      --accent-mid: #b3c8d6;
+      --border: #E4E0DA;
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'DM Sans', system-ui, sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-weight: 300; line-height: 1.6; font-size: 16px; }
+    #root { min-height: 100vh; }
+    @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(40px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    @media (max-width:768px) {
+      .desktop-nav { display: none !important; }
+      .hamburger { display: flex !important; }
+      .hero-title { font-size: clamp(42px,12vw,72px) !important; }
+      .stats-grid { grid-template-columns: 1fr 1fr !important; }
+      .gallery-grid {
+        grid-template-columns: 1fr 1fr !important;
+        grid-template-rows: auto !important;
+      }
+      .gallery-grid > div {
+        grid-column: auto !important;
+        grid-row: auto !important;
+      }
+      .gallery-grid > div > div {
+        height: auto !important;
+        aspect-ratio: 4/3;
+      }
+      .two-col { grid-template-columns: 1fr !important; }
+      .contact-grid { grid-template-columns: 1fr !important; }
+      .karta-grid { grid-template-columns: 1fr !important; }
+      .hero-btns { flex-direction: column !important; }
+      .stats-grid > div { border-right: none !important; border-bottom: 1px solid rgba(255,255,255,.18); }
+    }
+  </style>
+</head>
+<body>
+
+<div id="root"></div>
+
+<script type="text/babel">
+
+
+const { useState, useEffect, useRef, useCallback } = React;
+
+const IMGS = {
+  exterior: 'uploads/rimage (13)-d4847041.jpeg', // corner exterior – best hero
+  street: 'uploads/rimage (18)-9e79f620.jpeg', // balcony view, neighbourhood
+  rooftop: 'uploads/rimage (17)-1968ab1f.jpeg', // rooftop terrace
+  entrance: 'uploads/rimage (16)-424acf98.jpeg', // entrance door facade
+  lobby: 'uploads/rimage (15)-bc1d1725.jpeg', // marble lobby
+  street2: 'uploads/rimage (14)-3e8e15ae.jpeg' // street view
+};
+
+function useFadeIn(threshold = 0.1) {
+  const ref = useRef(null), [v, setV] = useState(false);
+  useEffect(() => {
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setV(true); obs.disconnect(); } }, { threshold });
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, []);
+  return [ref, v];
+}
+function useParallax(speed = 0.12) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current; if (!el) return;
+    const tick = () => {
+      const rect = el.parentElement.getBoundingClientRect();
+      const cy = rect.top + rect.height / 2 - window.innerHeight / 2;
+      el.style.transform = `translateY(${cy * speed}px) scale(1.08)`;
+    };
+    window.addEventListener('scroll', tick, { passive: true }); tick();
+    return () => window.removeEventListener('scroll', tick);
+  }, [speed]);
+  return ref;
+}
+function FadeIn({ children, delay = 0, style = {}, className = '', from = 'bottom' }) {
+  const [ref, v] = useFadeIn();
+  const hidden = from === 'left' ? 'translateX(-28px)' : from === 'right' ? 'translateX(28px)' : 'translateY(28px)';
+  return <div ref={ref} className={className} style={{
+    opacity: v ? 1 : 0,
+    transform: v ? 'translate(0,0)' : hidden,
+    transition: `opacity .85s cubic-bezier(0.22,1,0.36,1) ${delay}ms, transform .85s cubic-bezier(0.22,1,0.36,1) ${delay}ms`,
+    ...style
+  }}>{children}</div>;
+}
+
+function useCounter(target, active, duration = 1800) {
+  const [val, setVal] = useState(0);
+  const rafRef = useRef(null);
+  useEffect(() => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    if (!active) { setVal(0); return; }
+    const isNum = /^\d+$/.test(String(target));
+    if (!isNum) { setVal(target); return; }
+    const n = parseInt(target, 10);
+    const start = performance.now();
+    const tick = (now) => {
+      const p = Math.min((now - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - p, 4);
+      setVal(Math.round(ease * n));
+      if (p < 1) rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+  }, [active, target, duration]);
+  return val;
+}
+
+function useScramble(children, hovered) {
+  const [scrambled, setScrambled] = useState(null);
+  const rafRef = useRef(null);
+  const str = String(children);
+  useEffect(() => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    if (!hovered || !/\d/.test(str)) { setScrambled(null); return; }
+    const t0 = performance.now();
+    const dur = 480;
+    const step = (now) => {
+      const p = Math.min((now - t0) / dur, 1);
+      if (p >= 1) { setScrambled(null); return; }
+      const result = str.split('').map((ch, i) => {
+        if (!/\d/.test(ch)) return ch;
+        const cp = Math.max(0, p * 1.9 - i * 0.09);
+        return cp > 1 ? ch : String(Math.floor(Math.random() * 10));
+      }).join('');
+      setScrambled(result);
+      rafRef.current = requestAnimationFrame(step);
+    };
+    rafRef.current = requestAnimationFrame(step);
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+  }, [hovered, str]);
+  return scrambled !== null ? scrambled : children;
+}
+
+function Scramble({ children, style = {} }) {
+  const [hovered, setHovered] = useState(false);
+  const display = useScramble(children, hovered);
+  return (
+    <span onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
+      style={{ cursor: 'default', userSelect: 'none', ...style }}>{display}</span>);
+}
+
+function CountUp({ value, duration = 1800, suffix = '' }) {
+  const ref = useRef(null);
+  const [active, setActive] = useState(false);
+  useEffect(() => {
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.intersectionRatio >= 0.6) setActive(true);
+      else if (e.intersectionRatio === 0) setActive(false);
+    }, { threshold: [0, 0.6] });
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, []);
+  const counted = useCounter(String(value), active, duration);
+  const isNum = /^\d+$/.test(String(value));
+  return <span ref={ref}><Scramble>{isNum ? counted : value}</Scramble>{suffix}</span>;
+}
+
+// ── Navigation ──────────────────────────────────────────────────────────
+function Nav({ active }) {
+  const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 60);
+    window.addEventListener('scroll', fn);return () => window.removeEventListener('scroll', fn);
+  }, []);
+  const links = [
+  { id: 'om', label: 'Om föreningen' },
+  { id: 'boende', label: 'Boendeinformation' },
+  { id: 'galleri', label: 'Fastigheten' },
+  { id: 'dokument', label: 'Dokument' },
+  { id: 'kontakt', label: 'Kontakt' }];
+
+  const base = { position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '0 clamp(20px,4vw,48px)',
+    background: scrolled ? 'rgba(248,246,242,0.97)' : 'transparent',
+    backdropFilter: scrolled ? 'blur(14px)' : 'none',
+    borderBottom: scrolled ? '1px solid var(--border)' : '1px solid transparent',
+    transition: 'all .35s ease', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 70 };
+  const onHero = !scrolled;
+  const lnk = (id) => ({ fontFamily: 'var(--sans)', fontSize: 12, fontWeight: 400, letterSpacing: '.08em', textTransform: 'uppercase',
+    color: active === id ? (onHero ? '#fff' : 'var(--accent)') : (onHero ? 'rgba(255,255,255,0.82)' : 'var(--ink-soft)'), textDecoration: 'none',
+    borderBottom: active === id ? `1px solid ${onHero ? '#fff' : 'var(--accent)'}` : '1px solid transparent', paddingBottom: 2, transition: 'color .35s,border-color .35s' });
+  const barColor = onHero ? '#fff' : 'var(--ink)';
+  return (
+    <nav style={base} role="navigation" aria-label="Huvudnavigation">
+      <a href="#hero" style={{ fontFamily: 'var(--serif)', fontSize: 22, fontWeight: 400, color: onHero ? '#fff' : 'var(--ink)', textDecoration: 'none', lineHeight: 1.1, display: 'flex', flexDirection: 'column', gap: "10px", transition: 'color .35s' }}>
+        <span style={{ fontSize: 10, letterSpacing: '.2em', textTransform: 'uppercase', color: onHero ? 'rgba(255,255,255,0.55)' : 'var(--ink-muted)', fontFamily: 'var(--sans)', fontWeight: 400, transition: 'color .35s' }}>BRF</span>
+        Reveljen 4
+      </a>
+      <div className="desktop-nav" style={{ display: 'flex', gap: 32, alignItems: 'center' }}>
+        {links.map((l) => <a key={l.id} href={`#${l.id}`} style={lnk(l.id)}>{l.label}</a>)}
+      </div>
+      <button onClick={() => setOpen((o) => !o)} className="hamburger" aria-label={open ? 'Stäng' : 'Öppna meny'}
+      style={{ display: 'none', flexDirection: 'column', background: 'none', border: 'none', cursor: 'pointer', padding: 8, gap: 5 }}>
+        <div style={{ width: 24, height: 1.5, background: barColor, transition: 'transform .2s, background .35s', transform: open ? 'rotate(45deg) translate(4.5px,4.5px)' : 'none' }} />
+        <div style={{ width: 24, height: 1.5, background: barColor, opacity: open ? 0 : 1, transition: 'opacity .2s, background .35s' }} />
+        <div style={{ width: 24, height: 1.5, background: barColor, transition: 'transform .2s, background .35s', transform: open ? 'rotate(-45deg) translate(4.5px,-4.5px)' : 'none' }} />
+      </button>
+      {open &&
+      <div style={{ position: 'fixed', top: 70, left: 0, right: 0, background: 'rgba(248,246,242,.98)', backdropFilter: 'blur(14px)', padding: '28px clamp(20px,4vw,48px) 36px', borderBottom: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: 22 }}>
+          {links.map((l) => <a key={l.id} href={`#${l.id}`} onClick={() => setOpen(false)} style={{ ...lnk(l.id), fontSize: 15 }}>{l.label}</a>)}
+        </div>
+      }
+    </nav>);
+
+}
+
+// ── Hero ─────────────────────────────────────────────────────────────────
+function Hero() {
+  const [scrollY, setScrollY] = useState(0);
+  useEffect(() => {
+    const fn = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', fn, { passive: true });
+    return () => window.removeEventListener('scroll', fn);
+  }, []);
+  return (
+    <section id="hero" data-screen-label="Startsida – Hero"
+    style={{ position: 'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', overflow: 'hidden' }}>
+      {/* Real photo background */}
+      <div style={{ position: 'absolute', inset: 0 }}>
+        <img src={IMGS.exterior} alt="BRF Reveljen 4 fasad" fetchpriority="high" style={{ width: '100%', height: '115%', objectFit: 'cover', objectPosition: 'center 30%', transform: `translateY(${scrollY * 0.28}px)`, willChange: 'transform' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(10,22,40,.85) 0%, rgba(10,22,40,.35) 55%, rgba(10,22,40,.1) 100%)' }} />
+      </div>
+
+      <div style={{ position: 'relative', padding: '0 clamp(20px,4vw,56px) 88px', maxWidth: 1180, margin: '0 auto', width: '100%', animation: 'fadeUp 1.1s cubic-bezier(0.22,1,0.36,1) both', animationDelay: '200ms' }}>
+        <div style={{ display: 'inline-block', background: 'rgba(255,255,255,.12)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,.2)', borderRadius: 3, padding: '5px 14px', marginBottom: 28 }}>
+          <span style={{ color: 'rgba(255,255,255,.85)', fontSize: 10, letterSpacing: '.2em', textTransform: 'uppercase', fontFamily: 'var(--sans)' }}>STOCKHOLM · GÄRDET</span>
+        </div>
+        <h1 className="hero-title" style={{ fontFamily: 'var(--serif)', fontSize: 'clamp(52px,8vw,100px)', fontWeight: 300, color: '#fff', lineHeight: 1.02, letterSpacing: '-.01em', marginBottom: 24 }}>
+          BRF<br /><em>Reveljen 4</em>
+        </h1>
+        <p style={{ color: 'rgba(255,255,255,.8)', fontSize: 18, maxWidth: 460, lineHeight: 1.75, marginBottom: 52, fontWeight: 300 }}>
+          En välskött bostadsrättsförening på Nedre Gärdet i Stockholm, med fastighet uppförd 1935.
+        </p>
+        <div className="hero-btns" style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+          {[
+          { href: '#dokument', label: 'Dokument', primary: true },
+          { href: '#galleri', label: 'Se fastigheten', primary: false },
+          { href: '#kontakt', label: 'Kontakt', primary: false }].
+          map((b) =>
+          <a key={b.label} href={b.href} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 26px', borderRadius: 3,
+            fontFamily: 'var(--sans)', fontSize: 12, fontWeight: 400, letterSpacing: '.1em', textTransform: 'uppercase', textDecoration: 'none',
+            transition: 'all .2s', background: b.primary ? '#fff' : 'rgba(255,255,255,.12)',
+            color: b.primary ? 'var(--accent)' : '#fff', border: b.primary ? 'none' : '1px solid rgba(255,255,255,.3)',
+            backdropFilter: 'blur(8px)' }}>
+              {b.label}
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            </a>
+          )}
+        </div>
+      </div>
+
+    </section>);
+
+}
+
+// ── Stats bar ─────────────────────────────────────────────────────────────
+function StatItem({ v, l, delay, last }) {
+  const ref = useRef(null);
+  const [active, setActive] = useState(false);
+  useEffect(() => {
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.intersectionRatio >= 0.6) setActive(true);
+      else if (e.intersectionRatio === 0) setActive(false);
+    }, { threshold: [0, 0.6] });
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, []);
+  const counted = useCounter(v, active);
+  const isNum = /^\d+$/.test(v);
+  return (
+    <FadeIn delay={delay}>
+      <div ref={ref} style={{ textAlign: 'center', padding: '4px 16px', borderRight: !last ? '1px solid rgba(255,255,255,.18)' : 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end' }}>
+        <div style={{ fontFamily: 'var(--serif)', fontSize: isNum ? 38 : 20, fontWeight: 300, color: '#fff', lineHeight: 1.2, minHeight: 46, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'opacity .3s' }}>
+          {isNum ? counted : v}
+        </div>
+        <div style={{ color: 'rgba(255,255,255,.6)', fontSize: 11, letterSpacing: '.14em', textTransform: 'uppercase', marginTop: 8, fontFamily: 'var(--sans)' }}>{l}</div>
+      </div>
+    </FadeIn>
+  );
+}
+
+function Stats() {
+  const items = [
+  { v: '1935', l: 'Byggår' },
+  { v: '24', l: 'Lägenheter' },
+  { v: 'Erik Dahlbergsgatan 28', l: 'Adress' },
+  { v: 'Gärdet', l: 'Stadsdel' }];
+
+  return (
+    <section style={{ background: 'var(--accent)', padding: '44px clamp(20px,4vw,48px)' }}>
+      <div className="stats-grid" style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 0 }}>
+        {items.map((s, i) => <StatItem key={s.l} v={s.v} l={s.l} delay={i * 100} last={i === items.length - 1} />)}
+      </div>
+    </section>);
+
+}
+
+// ── Section helper ────────────────────────────────────────────────────────
+function Sec({ id, label, bg, children, pad = '100px clamp(20px,4vw,48px)' }) {
+  return (
+    <section id={id} data-screen-label={label} style={{ background: bg || 'var(--bg)', padding: pad }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>{children}</div>
+    </section>);
+
+}
+function SecHead({ eyebrow, title, sub }) {
+  const [ref, v] = useFadeIn();
+  return (
+    <div ref={ref} style={{ marginBottom: 60, opacity: v ? 1 : 0, transform: v ? 'translateY(0)' : 'translateY(24px)', transition: 'opacity .85s cubic-bezier(0.22,1,0.36,1), transform .85s cubic-bezier(0.22,1,0.36,1)' }}>
+      {eyebrow && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+          <div style={{ height: 1, background: 'var(--accent)', width: v ? 32 : 0, transition: 'width .9s cubic-bezier(0.22,1,0.36,1) 200ms' }} />
+          <p style={{ color: 'var(--accent)', fontSize: 10, letterSpacing: '.22em', textTransform: 'uppercase', fontFamily: 'var(--sans)', fontWeight: 500 }}>{eyebrow}</p>
+        </div>
+      )}
+      <h2 style={{ fontFamily: 'var(--serif)', fontSize: 'clamp(34px,5vw,58px)', fontWeight: 300, color: 'var(--ink)', lineHeight: 1.08, letterSpacing: '-.01em', marginBottom: sub ? 18 : 0, maxWidth: 620, textWrap: 'balance', transition: 'opacity .85s cubic-bezier(0.22,1,0.36,1), transform .85s cubic-bezier(0.22,1,0.36,1)' }}>{title}</h2>
+      {sub && <p style={{ color: 'var(--ink-soft)', fontSize: 17, lineHeight: 1.75, maxWidth: 560, fontWeight: 300 }}>{sub}</p>}
+    </div>);
+
+}
+
+// ── Om föreningen ──────────────────────────────────────────────────────────
+function Om() {
+  const paraRef = useParallax(0.1);
+  return (
+    <Sec id="om" label="Om föreningen">
+      <SecHead eyebrow="Om oss" title="BRF Reveljen 4" sub="En liten bostadsrättsförening med 24 lägenheter i ett femvåningshus på Erik Dahlbergsgatan 28 i Gärdet. Fastigheten uppfördes 1935 och föreningen registrerades 1996. Styrelsen är aktiv och engagerad, och föreningen har god ekonomi med låg belåning." />
+      <div className="two-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48, alignItems: 'start' }}>
+        <FadeIn>
+          <div>
+            <div style={{ width: '100%', aspectRatio: '3/4', overflow: 'hidden', borderRadius: 6, marginBottom: 28 }}>
+              <img ref={paraRef} src={IMGS.exterior} alt="BRF Reveljen 4 fasad" loading="lazy" style={{ width: '100%', height: '108%', objectFit: 'cover', objectPosition: 'center', willChange: 'transform' }} />
+            </div>
+            <p style={{ color: 'var(--ink-soft)', fontSize: 15, lineHeight: 1.75 }}>
+              Fastigheten uppfördes 1935 och är välunderhållen. Föreningen värnar om ett trivsamt boende och en långsiktigt stabil ekonomi.
+            </p>
+          </div>
+        </FadeIn>
+        <div>
+          <div style={{ borderLeft: '2px solid var(--accent-mid)', paddingLeft: 22, marginBottom: 36 }}>
+            <FadeIn><p style={{ color: 'var(--ink-muted)', fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', marginBottom: 16, fontWeight: 500 }}>Faktablad</p></FadeIn>
+            {[
+            ['Org.nr', '769601-5028'],
+            ['Registrerad', '1996'],
+            ['Byggår', '1935'],
+            ['Lägenheter', '24 bostadsrätter + 1 lokal'],
+            ['Trapphus / våningar', '1 trapphus, 5 våningar'],
+            ['Uppvärmning', 'Bergvärme'],
+            ['Avgift inkl.', 'Värme, vatten, bredband, kabel-TV'],
+            ['Skuldsättning/kvm', '2 035 kr (2025)'],
+            ['Adress', 'Erik Dahlbergsgatan 28, Stockholm']].
+            map(([k, v], i) =>
+            <FadeIn key={k} from='left' delay={i * 40}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--border)', fontSize: 14 }}>
+                  <span style={{ color: 'var(--ink-muted)' }}>{k}</span>
+                  <span style={{ color: 'var(--ink)', fontWeight: 400 }}>{v}</span>
+                </div>
+              </FadeIn>
+            )}
+          </div>
+          <div>
+            <FadeIn delay={120}><h3 style={{ fontFamily: 'var(--serif)', fontSize: 26, fontWeight: 400, marginBottom: 20 }}>Historik</h3></FadeIn>
+            {[
+            { y: '1935', t: 'Fastigheten uppförs med marmorentré och rymliga planlösningar på Erik Dahlbergsgatan 28.' },
+            { y: '1996', t: 'Bostadsrättsföreningen Reveljen 4 registreras. Fastigheten upplåts med bostadsrätt.' },
+            { y: '2019', t: 'Föreningens stadgar uppdateras och registreras hos Bolagsverket.' },
+            { y: '2025', t: 'Årsavgifterna höjs med 10%. Ny underhållsplan upprättas.' }].
+            map((item, i) =>
+            <FadeIn key={i} from='left' delay={i * 70 + 160}>
+                <div style={{ position: 'relative', paddingLeft: 22, marginBottom: 20, borderLeft: '1px solid var(--border)' }}>
+                  <div style={{ position: 'absolute', left: -4, top: 5, width: 7, height: 7, borderRadius: '50%', background: 'var(--accent)', border: '2px solid var(--bg)' }} />
+                  <div style={{ fontSize: 11, color: 'var(--accent)', fontWeight: 500, letterSpacing: '.08em', marginBottom: 3 }}><CountUp value={item.y} duration={1600} /></div>
+                  <p style={{ color: 'var(--ink-soft)', fontSize: 13, lineHeight: 1.65 }}>{item.t}</p>
+                </div>
+              </FadeIn>
+            )}
+          </div>
+        </div>
+      </div>
+    </Sec>);
+
+}
+
+// ── Boendeinformation ──────────────────────────────────────────────────────
+function Boende() {
+  const [tab, setTab] = useState(0);
+  const tabs = [
+  { label: 'Regler & trivsel', items: [
+    { t: 'Grannsämja', b: 'Hänsyn ska visas dygnet runt. Bullrande arbeten får ej utföras 22:00–07:00 på vardagar eller på söndagar och helgdagar.' },
+    { t: 'Andrahandsuthyrning', b: 'Kräver styrelsens skriftliga godkännande. Ansökan lämnas in minst 30 dagar i förväg.' },
+    { t: 'Husdjur', b: 'Husdjur är tillåtna men ska hållas under uppsikt i gemensamma utrymmen. Visa hänsyn för grannar.' },
+    { t: 'Renovering', b: 'Alla renoveringsarbeten ska anmälas till styrelsen i förväg. Eldragning och VVS kräver behörig hantverkare.' }]
+  },
+  { label: 'Sophantering', items: [
+    { t: 'Matavfall & restavfall', b: 'Föreningen har sophantering för matavfall och restavfall. Sortera enligt anvisningarna på kärlen.' },
+    { t: 'Tidningar, förpackningar, glas m.m.', b: 'För övrig källsortering – tidningar, förpackningar, glas, metall m.m. – används kommunens källsortering på Erik Dahlbergsgatan 43.' },
+    { t: 'Grovsopor', b: 'Grovsopor ansvarar varje boende för själv och lämnas vid kommunens Återvinningscentral.' }]
+  },
+  { label: 'Tvättstuga', items: [
+    { t: 'Bokning', b: 'Bokas i bokningssystemet i källaren.' },
+    { t: 'Maskiner', b: 'Tvättstugan är utrustad med tvättmaskiner, torktumlare, torkskåp och mangel.' },
+    { t: 'Städning', b: 'Det är viktigt att alla städar noggrant efter sig. Rengör filter i torktumlare efter varje användning.' }]
+  },
+  { label: 'Gemensamma utrymmen', items: [
+    { t: 'Takterrassen', b: 'Takterrassen med utemöbler är tillgänglig för alla boende.' },
+    { t: 'Cykelparkering', b: 'Cyklar kan förvaras i källaren eller vid den lilla cykelparkeringen utanför på gården.' },
+    { t: 'Förråd', b: 'Varje lägenhet har eget vindsförråd. Ingenting får förvaras i gångarna på vinden. Inget brandfarligt material.' },
+    ]
+  }];
+
+  return (
+    <Sec id="boende" label="Boendeinformation" bg="var(--white)">
+      <SecHead eyebrow="För boende" title="Boendeinformation" sub="Allt du behöver veta som boende i BRF Reveljen 4, samlat på ett ställe." />
+      <FadeIn>
+        <div style={{ display: 'flex', gap: 4, marginBottom: 36, background: 'var(--bg)', padding: 4, borderRadius: 6, width: 'fit-content', flexWrap: 'wrap' }}>
+          {tabs.map((t, i) =>
+          <button key={i} onClick={() => setTab(i)} style={{ padding: '9px 20px', borderRadius: 5, border: 'none', cursor: 'pointer',
+            fontFamily: 'var(--sans)', fontSize: 12, fontWeight: 400, letterSpacing: '.04em',
+            background: tab === i ? 'var(--white)' : 'transparent',
+            color: tab === i ? 'var(--accent)' : 'var(--ink-muted)',
+            boxShadow: tab === i ? '0 1px 4px rgba(0,0,0,.08)' : 'none', transition: 'all .2s' }}>
+              {t.label}
+            </button>
+          )}
+        </div>
+      </FadeIn>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 18 }}>
+        {tabs[tab].items.map((item, i) =>
+        <FadeIn key={`${tab}-${i}`} delay={i * 55} style={{ height: '100%' }}>
+            <div style={{ padding: 28, border: '1px solid var(--border)', borderRadius: 6, background: 'var(--bg)', transition: 'border-color .2s,box-shadow .2s', cursor: 'default', height: '100%', boxSizing: 'border-box' }}
+          onMouseEnter={(e) => {e.currentTarget.style.borderColor = 'var(--accent-mid)';e.currentTarget.style.boxShadow = '0 4px 16px rgba(46,123,180,.08)';}}
+          onMouseLeave={(e) => {e.currentTarget.style.borderColor = 'var(--border)';e.currentTarget.style.boxShadow = 'none';}}>
+              <div style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--accent)', marginBottom: 14 }} />
+              <h4 style={{ fontFamily: 'var(--serif)', fontSize: 20, fontWeight: 500, color: 'var(--ink)', marginBottom: 10 }}>{item.t}</h4>
+              <p style={{ color: 'var(--ink-soft)', fontSize: 14, lineHeight: 1.72 }}>{item.b}</p>
+            </div>
+          </FadeIn>
+        )}
+      </div>
+      <FadeIn>
+        <a href="https://savetime.realportal.nu/" target="_blank" rel="noreferrer"
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 28, padding: '24px 32px', background: 'var(--accent)', borderRadius: 6, textDecoration: 'none', gap: 24 }}
+          onMouseEnter={(e) => e.currentTarget.style.opacity = '.88'} onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}>
+          <div>
+            <p style={{ color: 'rgba(255,255,255,.65)', fontSize: 10, letterSpacing: '.18em', textTransform: 'uppercase', fontFamily: 'var(--sans)', marginBottom: 6 }}>För boende</p>
+            <p style={{ color: '#fff', fontFamily: 'var(--serif)', fontSize: 22, fontWeight: 300 }}>BRF-portalen</p>
+            <p style={{ color: 'rgba(255,255,255,.7)', fontSize: 13, marginTop: 4 }}>Hitta information om din egen bostad</p>
+          </div>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}><path d="M5 12h14M13 6l6 6-6 6" stroke="rgba(255,255,255,0.8)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        </a>
+      </FadeIn>
+    </Sec>);
+
+}
+
+// ── Bildgalleri ───────────────────────────────────────────────────────────
+function Galleri() {
+  const [lightbox, setLightbox] = useState(null);
+  const photos = [
+  { src: IMGS.exterior, alt: 'Fasaden – hörnbyggnad med vita balkonger', cap: 'Fasaden', gc: '1/3', gr: '1' },
+  { src: IMGS.lobby, alt: 'Entréhall med marmorklädda väggar och Art Deco-stuckatur', cap: 'Entréhallen', gc: '3', gr: '1/3' },
+  { src: IMGS.entrance, alt: 'Entrédörr med numret 28', cap: 'Entrédörren', gc: '1', gr: '2' },
+  { src: IMGS.rooftop, alt: 'Takterrassen med utemöbler och stadsutsikt', cap: 'Takterrassen', gc: '2', gr: '2' },
+  { src: IMGS.street, alt: 'Utsikt från balkongen mot grönska och kvarter', cap: 'Utsikt från balkongen', gc: '1/3', gr: '3' },
+  { src: IMGS.street2, alt: 'Gatuvy med fontän och grönska', cap: 'Omgivningen', gc: '3', gr: '3' }];
+
+  return (
+    <Sec id="galleri" label="Fastigheten – Bildgalleri" bg="var(--ink)" pad="96px clamp(20px,4vw,48px)">
+      <FadeIn>
+        <p style={{ color: 'rgba(255,255,255,.4)', fontSize: 10, letterSpacing: '.22em', textTransform: 'uppercase', fontFamily: 'var(--sans)', marginBottom: 14 }}>Bildgalleri</p>
+        <h2 style={{ fontFamily: 'var(--serif)', fontSize: 'clamp(34px,5vw,58px)', fontWeight: 300, color: '#fff', marginBottom: 52, lineHeight: 1.08 }}>Fastigheten</h2>
+      </FadeIn>
+      <div className="gallery-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gridTemplateRows: 'repeat(3, 260px)', gap: 10 }}>
+        {photos.map((p, i) =>
+        <FadeIn key={i} delay={i * 60} style={{ gridColumn: p.gc, gridRow: p.gr }}>
+            <div onClick={() => setLightbox(i)} style={{ cursor: 'pointer', overflow: 'hidden', borderRadius: 4, position: 'relative', height: '100%' }}>
+              <img src={p.src} alt={p.alt} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform .45s ease' }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.04)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'} />
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top,rgba(0,0,0,.5) 0%,transparent 50%)', opacity: 0, transition: 'opacity .3s' }}
+            onMouseEnter={(e) => {e.currentTarget.style.opacity = 1;}}
+            onMouseLeave={(e) => {e.currentTarget.style.opacity = 0;}} />
+              <p style={{ position: 'absolute', bottom: 14, left: 14, color: '#fff', fontSize: 12, fontFamily: 'var(--sans)', fontWeight: 400, letterSpacing: '.06em', pointerEvents: 'none' }}>{p.cap}</p>
+            </div>
+          </FadeIn>
+        )}
+      </div>
+      {lightbox !== null &&
+      <div onClick={() => setLightbox(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.92)', zIndex: 9998, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'zoom-out' }}>
+          <img src={photos[lightbox].src} alt={photos[lightbox].alt} style={{ maxWidth: '90vw', maxHeight: '90vh', objectFit: 'contain', borderRadius: 4 }} />
+          <button onClick={(e) => {e.stopPropagation();setLightbox((l) => (l - 1 + photos.length) % photos.length);}}
+        style={{ position: 'fixed', left: 24, top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,.12)', border: 'none', borderRadius: '50%', width: 48, height: 48, color: '#fff', fontSize: 22, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>‹</button>
+          <button onClick={(e) => {e.stopPropagation();setLightbox((l) => (l + 1) % photos.length);}}
+        style={{ position: 'fixed', right: 24, top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,.12)', border: 'none', borderRadius: '50%', width: 48, height: 48, color: '#fff', fontSize: 22, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>›</button>
+          <p style={{ position: 'fixed', bottom: 28, left: '50%', transform: 'translateX(-50%)', color: 'rgba(255,255,255,.6)', fontSize: 13, letterSpacing: '.06em' }}>{photos[lightbox].cap} · {lightbox + 1}/{photos.length}</p>
+        </div>
+      }
+    </Sec>);
+
+}
+
+// ── Dokument ──────────────────────────────────────────────────────────────
+function Dokument() {
+  const [filter, setFilter] = useState('Alla');
+  const docs = [
+  { name: 'Årsredovisning 2025', cat: 'Årsredovisning', year: '2025', size: '1.3 MB', updated: '2026-05-26', file: 'uploads/ÅR 2025 Brf Reveljen 4.pdf' },
+  { name: 'Årsredovisning 2024', cat: 'Årsredovisning', year: '2024', size: '960 KB', updated: '2025-05-01', file: 'uploads/ÅR 2024 Brf Reveljen 4.pdf' },
+  { name: 'Årsredovisning 2023', cat: 'Årsredovisning', year: '2023', size: '1.5 MB', updated: '2024-05-01', file: 'uploads/ÅR 2023 Brf Reveljen 4.pdf' },
+  { name: 'Stadgar 2019', cat: 'Stadgar', year: '2019', size: '310 KB', updated: '2019-01-01', file: 'uploads/Stadgar_2018.pdf' },
+  { name: 'Energideklaration 2020', cat: 'Övrigt', year: '2020', size: '213 KB', updated: '2020-04-14', file: 'uploads/Energideklaration_2020.pdf' }];
+
+  const cats = ['Alla', 'Årsredovisning', 'Stadgar', 'Övrigt'];
+  const shown = filter === 'Alla' ? docs : docs.filter((d) => d.cat === filter);
+  return (
+    <Sec id="dokument" label="Dokument">
+      <SecHead eyebrow="Nedladdningar" title="Dokument & handlingar" sub="Föreningens officiella handlingar, protokoll och årsredovisningar, samlade på ett ställe." />
+      <FadeIn>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 28, flexWrap: 'wrap' }}>
+          {cats.map((c) =>
+          <button key={c} onClick={() => setFilter(c)} style={{ padding: '8px 18px', borderRadius: 20, border: '1px solid',
+            borderColor: filter === c ? 'var(--accent)' : 'var(--border)',
+            background: filter === c ? 'var(--accent)' : 'transparent',
+            color: filter === c ? '#fff' : 'var(--ink-soft)',
+            fontFamily: 'var(--sans)', fontSize: 12, cursor: 'pointer', transition: 'all .2s' }}>{c}</button>
+          )}
+        </div>
+      </FadeIn>
+      <div style={{ border: '1px solid var(--border)', borderRadius: 8, overflow: 'hidden' }}>
+        {shown.map((doc, i) =>
+        <FadeIn key={doc.name} delay={i * 35}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 24px',
+            borderBottom: i < shown.length - 1 ? '1px solid var(--border)' : 'none', background: 'var(--white)', gap: 16, flexWrap: 'wrap', transition: 'background .15s' }}
+          onMouseEnter={(e) => e.currentTarget.style.background = 'var(--accent-light)'}
+          onMouseLeave={(e) => e.currentTarget.style.background = 'var(--white)'}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, flex: 1 }}>
+                <div style={{ width: 34, height: 42, background: 'var(--accent-light)', borderRadius: 3, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="15" height="19" viewBox="0 0 16 20" fill="none">
+                    <path d="M9 1H3a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V7L9 1z" stroke="var(--accent)" strokeWidth="1.5" strokeLinejoin="round" />
+                    <path d="M9 1v6h6" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+                <div>
+                  <p style={{ fontFamily: 'var(--sans)', fontSize: 14, fontWeight: 400, color: 'var(--ink)', marginBottom: 2 }}>{doc.name}</p>
+                  <p style={{ fontSize: 12, color: 'var(--ink-muted)' }}>{doc.cat} · {doc.size} · Uppdaterad {doc.updated}</p>
+                </div>
+              </div>
+              <a href={doc.file} download aria-label={`Ladda ner ${doc.name}`}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--accent)', fontSize: 11, fontWeight: 500, letterSpacing: '.08em', textTransform: 'uppercase', textDecoration: 'none', flexShrink: 0 }}>
+                Ladda ner
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 2v6M3 6l3 3 3-3M2 10h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              </a>
+            </div>
+          </FadeIn>
+        )}
+      </div>
+      <FadeIn><p style={{ marginTop: 14, fontSize: 12, color: 'var(--ink-muted)' }}>Saknar du ett dokument? <a href="#kontakt" style={{ color: 'var(--accent)' }}>Kontakta styrelsen</a> så hjälper vi dig.</p></FadeIn>
+    </Sec>);
+
+}
+
+// ── Nyheter ───────────────────────────────────────────────────────────────
+function Nyheter() {
+  const news = [
+  { date: '15 april 2025', tag: 'Underhåll', color: { bg: '#FEF3C7', c: '#92400E' },
+    title: 'Trapprenovering i trapphus A och C',
+    body: 'Under vecka 20–22 renoveras trapphusen A och C. Arbetet utförs av NCC och beräknas ta 3 veckor. Hissen i trapphus A stängs av under perioden.' },
+  { date: '2 mars 2025', tag: 'Stämma', color: { bg: 'var(--accent-light)', c: 'var(--accent)' },
+    title: 'Kallelse till ordinarie föreningsstämma 2025',
+    body: 'Ordinarie föreningsstämma hålls torsdagen den 5 juni 2025 kl. 18:30. Dagordning och årsredovisning skickas separat till alla boende.' },
+  { date: '10 januari 2025', tag: 'Information', color: { bg: '#EDE9FE', c: '#5B21B6' },
+    title: 'Nytt bokningssystem för tvättstugan',
+    body: 'Fr.o.m. 1 februari 2025 används Aptus Online för bokning av tvättstugan. Alla boende har fått inloggningsuppgifter via e-post.' },
+  { date: '18 november 2024', tag: 'Miljö', color: { bg: '#DCFCE7', c: '#166534' },
+    title: 'Ny källsorteringslösning på innergården',
+    body: 'Vi har uppgraderat vår miljöstation med nya, tydligt märkta kärl. Matavfall komposteras nu lokalt. Tack för ert miljöengagemang!' }];
+
+  return (
+    <Sec id="nyheter" label="Nyheter" bg="var(--white)">
+      <SecHead eyebrow="Aktuellt" title="Nyheter & anslag" sub="Aktuell information och uppdateringar från styrelsen." />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 22 }}>
+        {news.map((n, i) =>
+        <FadeIn key={i} delay={i * 70}>
+            <article style={{ border: '1px solid var(--border)', borderRadius: 8, padding: 30, background: 'var(--bg)', display: 'flex', flexDirection: 'column', gap: 12, transition: 'all .2s', cursor: 'pointer' }}
+          onMouseEnter={(e) => {e.currentTarget.style.borderColor = 'var(--accent-mid)';e.currentTarget.style.transform = 'translateY(-3px)';e.currentTarget.style.boxShadow = '0 8px 24px rgba(46,123,180,.1)';}}
+          onMouseLeave={(e) => {e.currentTarget.style.borderColor = 'var(--border)';e.currentTarget.style.transform = 'none';e.currentTarget.style.boxShadow = 'none';}}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ display: 'inline-block', padding: '4px 10px', borderRadius: 20, background: n.color.bg, color: n.color.c, fontSize: 10, fontWeight: 500, letterSpacing: '.06em' }}>{n.tag}</span>
+                <span style={{ fontSize: 11, color: 'var(--ink-muted)' }}>{n.date}</span>
+              </div>
+              <h3 style={{ fontFamily: 'var(--serif)', fontSize: 22, fontWeight: 500, color: 'var(--ink)', lineHeight: 1.25 }}>{n.title}</h3>
+              <p style={{ color: 'var(--ink-soft)', fontSize: 14, lineHeight: 1.72 }}>{n.body}</p>
+              <a href="#" onClick={(e) => e.preventDefault()} style={{ color: 'var(--accent)', fontSize: 11, fontWeight: 500, letterSpacing: '.08em', textTransform: 'uppercase', textDecoration: 'none', marginTop: 'auto', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                Läs mer <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              </a>
+            </article>
+          </FadeIn>
+        )}
+      </div>
+    </Sec>);
+
+}
+
+// ── Kontakt ───────────────────────────────────────────────────────────────
+function Kontakt() {
+  const MAIL = ['brfreveljen4styrelsen', 'gmail.com'].join('@');
+  const styrelsen = [
+  { roll: 'Ordförande', namn: 'Fredrik Sinclair' },
+  { roll: 'Kassör', namn: 'Robert Steen' },
+  { roll: 'Sekreterare', namn: 'Gunnar Nidén' },
+  { roll: 'Ledamot', namn: 'Viktoria Wikberg' },
+  { roll: 'Ledamot', namn: 'Michael Fant' },
+  { roll: 'Ledamot', namn: 'Roger Fredin' }];
+
+  return (
+    <Sec id="kontakt" label="Kontakt" pad="100px clamp(20px,4vw,48px) 60px">
+      <SecHead eyebrow="Kontakta oss" title="Kontakt med styrelsen" sub="Alla ärenden – frågor, felanmälan, tillstånd eller överlåtelser – hanteras via föreningens gemensamma e-post." />
+      <div className="contact-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 56, alignItems: 'start' }}>
+        <FadeIn>
+          <div style={{ padding: 48, background: 'var(--white)', border: '1px solid var(--border)', borderRadius: 8, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 24 }}>
+            <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'var(--accent-light)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 4h16v16H4z" stroke="none"/><path d="M20 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2z" stroke="var(--accent)" strokeWidth="1.5"/><path d="M2 6l10 7 10-7" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round"/></svg>
+            </div>
+            <div>
+              <p style={{ fontSize: 11, letterSpacing: '.12em', textTransform: 'uppercase', color: 'var(--ink-muted)', marginBottom: 8, fontWeight: 500 }}>E-post till styrelsen</p>
+              <a href={`mailto:${MAIL}`} style={{ fontFamily: 'var(--serif)', fontSize: 22, color: 'var(--accent)', textDecoration: 'none', wordBreak: 'break-all' }}>{MAIL}</a>
+            </div>
+            <p style={{ color: 'var(--ink-soft)', fontSize: 14, lineHeight: 1.75 }}>Vi svarar normalt inom 2–3 vardagar. Ange lägenhetsnummer och ämne i ämnesraden.</p>
+            <a href={`mailto:${MAIL}`}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '15px 30px', background: 'var(--accent)', color: '#fff', borderRadius: 4, fontFamily: 'var(--sans)', fontSize: 12, fontWeight: 500, letterSpacing: '.1em', textTransform: 'uppercase', textDecoration: 'none', transition: 'opacity .2s' }}
+              onMouseEnter={(e) => e.currentTarget.style.opacity = '.82'} onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}>
+              Skicka e-post
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            </a>
+          </div>
+        </FadeIn>
+        <FadeIn delay={140}>
+          <div>
+            <h3 style={{ fontFamily: 'var(--serif)', fontSize: 26, fontWeight: 400, color: 'var(--ink)', marginBottom: 24 }}>Styrelse</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              {styrelsen.map((s, i) =>
+              <FadeIn key={i} delay={i * 60}>
+                  <div style={{ padding: '18px 20px', border: '1px solid var(--border)', borderRadius: 7, background: 'var(--white)', borderTop: '2px solid var(--accent)' }}>
+                    <p style={{ fontSize: 10, letterSpacing: '.12em', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 8, fontWeight: 500 }}>{s.roll}</p>
+                    <p style={{ fontFamily: 'var(--serif)', fontSize: 18, fontWeight: 400, color: 'var(--ink)' }}>{s.namn}</p>
+                  </div>
+                </FadeIn>
+              )}
+            </div>
+            <p style={{ marginTop: 14, fontSize: 12, color: 'var(--ink-muted)', lineHeight: 1.65 }}>Revisor: Joakim Häll, Kungsbron Borevision AB</p>
+          </div>
+        </FadeIn>
+      </div>
+    </Sec>);
+
+}
+
+// ── Karta ──────────────────────────────────────────────────────────────────
+function Karta() {
+  return (
+    <section style={{ background: 'var(--ink)' }}>
+      <div className="karta-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', minHeight: 480 }}>
+        <FadeIn style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: 'clamp(40px,6vw,80px) clamp(24px,4vw,56px)' }}>
+          <p style={{ color: 'rgba(255,255,255,.4)', fontSize: 10, letterSpacing: '.22em', textTransform: 'uppercase', fontFamily: 'var(--sans)', marginBottom: 20 }}>Hitta hit</p>
+          <h2 style={{ fontFamily: 'var(--serif)', fontSize: 'clamp(28px,4vw,46px)', fontWeight: 300, color: '#fff', lineHeight: 1.1, marginBottom: 12 }}>Erik Dahlbergsgatan 28</h2>
+          <p style={{ color: 'rgba(255,255,255,.5)', fontSize: 15, marginBottom: 36 }}>Nedre Gärdet, Stockholm</p>
+          <a href="https://maps.google.com/?q=Erik+Dahlbergsgatan+28,+Stockholm" target="_blank" rel="noreferrer"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: 'var(--accent)', fontSize: 12, fontWeight: 500, letterSpacing: '.08em', textTransform: 'uppercase', textDecoration: 'none' }}>
+            Öppna i Google Maps
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          </a>
+        </FadeIn>
+        <div style={{ minHeight: 380 }}>
+          <iframe
+            title="Karta BRF Reveljen 4"
+            src="https://maps.google.com/maps?q=Erik+Dahlbergsgatan+28,+Stockholm&output=embed"
+            width="100%" height="100%" style={{ border: 0, display: 'block', minHeight: 380, filter: 'grayscale(100%) contrast(1.05)' }}
+            allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
+        </div>
+      </div>
+    </section>);
+}
+
+// ── Footer ─────────────────────────────────────────────────────────────────
+function Footer() {
+  return (
+    <footer style={{ background: 'var(--ink)', color: 'rgba(255,255,255,.45)', padding: '52px clamp(20px,4vw,48px)', fontFamily: 'var(--sans)', fontSize: 13 }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 32 }}>
+        <div>
+          <p style={{ fontFamily: 'var(--serif)', fontSize: 22, color: '#fff', fontWeight: 300, marginBottom: 6 }}>BRF Reveljen 4</p>
+          <p>Erik Dahlbergsgatan 28, Stockholm</p>
+          <p style={{ marginTop: 4 }}>Org.nr 769601-5028</p>
+        </div>
+        <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap' }}>
+          {[['om', 'Om föreningen'], ['boende', 'Boendeinformation'], ['galleri', 'Fastigheten'], ['dokument', 'Dokument'], ['kontakt', 'Kontakt']].map(([id, l]) =>
+          <a key={id} href={`#${id}`} style={{ color: 'rgba(255,255,255,.45)', textDecoration: 'none', transition: 'color .2s', letterSpacing: '.04em' }}
+          onMouseEnter={(e) => e.target.style.color = '#fff'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,.45)'}>{l}</a>
+          )}
+        </div>
+        <p style={{ width: '100%', borderTop: '1px solid rgba(255,255,255,.08)', paddingTop: 24, marginTop: 4, textAlign: 'center', fontSize: 11, letterSpacing: '.04em' }}>
+          © {new Date().getFullYear()} BRF Reveljen 4 · Webbplatsen drivs av styrelsen
+        </p>
+      </div>
+    </footer>);
+
+}
+
+// ── App ────────────────────────────────────────────────────────────────────
+function App() {
+  const [active, setActive] = useState('hero');
+  useEffect(() => {
+    const ids = ['hero', 'om', 'boende', 'galleri', 'dokument', 'kontakt'];
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {if (e.isIntersecting) setActive(e.target.id);});
+    }, { threshold: 0.25 });
+    ids.forEach((id) => {const el = document.getElementById(id);if (el) obs.observe(el);});
+    return () => obs.disconnect();
+  }, []);
+  return (
+    <>
+      <Nav active={active} />
+      <main>
+        <Hero /><Stats /><Om /><Boende /><Galleri /><Dokument /><Kontakt /><Karta />
+      </main>
+      <Footer />
+    </>);
+
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
