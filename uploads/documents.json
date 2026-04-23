@@ -1,7 +1,7 @@
 [
-  { "name": "Årsredovisning 2025", "cat": "Årsredovisning", "year": "2025", "size": "1.3 MB", "updated": "2026-04-23", "file": "uploads/%C3%85R%202025%20Brf%20Reveljen%204.pdf" },
-  { "name": "Årsredovisning 2024", "cat": "Årsredovisning", "year": "2024", "size": "960 KB", "updated": "2025-05-01", "file": "uploads/%C3%85R%202024%20Brf%20Reveljen%204.pdf" },
-  { "name": "Årsredovisning 2023", "cat": "Årsredovisning", "year": "2023", "size": "1.5 MB", "updated": "2024-05-01", "file": "uploads/%C3%85R%202023%20Brf%20Reveljen%204.pdf" },
-  { "name": "Stadgar 2019", "cat": "Stadgar", "year": "2019", "size": "310 KB", "updated": "2019-01-01", "file": "uploads/Stadgar_2018.pdf" },
-  { "name": "Energideklaration 2020", "cat": "Övrigt", "year": "2020", "size": "213 KB", "updated": "2020-04-14", "file": "uploads/Energideklaration_2020.pdf" }
+  { "name": "Årsredovisning 2025", "cat": "Årsredovisning", "year": "2025", "size": "1.3 MB", "updated": "2026-04-23", "file": "uploads/arsredovisning_2025.pdf" },
+  { "name": "Årsredovisning 2024", "cat": "Årsredovisning", "year": "2024", "size": "960 KB", "updated": "2025-05-01", "file": "uploads/arsredovisning_2024.pdf" },
+  { "name": "Årsredovisning 2023", "cat": "Årsredovisning", "year": "2023", "size": "1.5 MB", "updated": "2024-05-01", "file": "uploads/arsredovisning_2023.pdf" },
+  { "name": "Stadgar 2019", "cat": "Stadgar", "year": "2019", "size": "310 KB", "updated": "2019-01-01", "file": "uploads/stadgar_2019.pdf" },
+  { "name": "Energideklaration 2020", "cat": "Övrigt", "year": "2020", "size": "213 KB", "updated": "2020-04-14", "file": "uploads/energideklaration_2020.pdf" }
 ]
